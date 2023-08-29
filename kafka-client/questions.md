@@ -1,0 +1,2 @@
+1. 启动一个test，如果while循环持续消费，发起一个poll函数就返回的话，可能消费不到数据。broker是否是在等待多个数据一起或者有时长控制？
+消费者刚开始定义时，会发送reBalance。而reBalance时消费是阻塞的，若poll的timeout参数设置的短就取不到数据。
