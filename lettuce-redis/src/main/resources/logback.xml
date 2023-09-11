@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+    <!--定义日志文件的存储地址，读取环境变量log.home-->
+    <!-- <property name="logdir" value="${log.home}"/> -->
+    <property name="logdir" value="logs"/>
+    <property name="module" value="lettuce-redis"/>
+    <!-- 活动文件的大小 -->
+    <property name="max.file.size" value="500MB"/>
+    <!-- 保留的归档文件的最大数量 -->
+    <property name="max.history" value="30"/>
+    <!-- 控制所有归档日志文件的总大小 -->
+    <property name="total.size.cap" value="10GB"/>
+    <property name="monitor_log_pattern"
+            value="[%d{yyyy-MM-dd HH:mm:ss.SSS}]|[%X{MSG_NO}]|[%-5level]|%logger{36}|%msg%n"/>
+    <property name="common_log_pattern"
+            value="[%d{yyyy-MM-dd HH:mm:ss.SSS}][%X{MSG_NO}][%thread] %-5level[%logger{36}]:%msg%n"/>
+
+    <!-- 控制台输出 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${common_log_pattern}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 按照每天生成日志文件(应用日志) -->
+    <appender name="APP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <fileNamePattern>${logdir}/${module}_%d{yyyyMMdd}_app.%i.log</fileNamePattern>
+            <maxFileSize>${max.file.size}</maxFileSize>
+            <maxHistory>${max.history}</maxHistory>
+            <totalSizeCap>${total.size.cap}</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${common_log_pattern}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="ERR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <fileNamePattern>${logdir}/${module}_%d{yyyyMMdd}_err.%i.log</fileNamePattern>
+            <maxFileSize>${max.file.size}</maxFileSize>
+            <maxHistory>${max.history}</maxHistory>
+            <totalSizeCap>${total.size.cap}</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${common_log_pattern}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <!-- 设置过滤器只记录ERROR级别的日志 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 过滤级别 -->
+            <level>ERROR</level>
+            <!-- 符合过滤条件时的操作 -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 不符合过滤条件时的操作 -->
+            <OnMisMatch>DENY</OnMisMatch>
+        </filter>
+    </appender>
+
+<!--    <logger name="org.example" level="INFO" additivity="false">-->
+<!--        <appender-ref ref="APP_FILE"/>-->
+<!--        <appender-ref ref="ERR_FILE"/>-->
+<!--    </logger>-->
+
+    <!--异步输出-->
+    <appender name="ASYNC_APP_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>256</queueSize>
+        <appender-ref ref="APP_FILE"/>
+    </appender>
+    <appender name="ASYNC_ERR_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>256</queueSize>
+        <appender-ref ref="ERR_FILE"/>
+    </appender>
+
+    <!-- 日志输出级别 -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+<!--        <appender-ref ref="ASYNC_APP_FILE"/>-->
+<!--        <appender-ref ref="ASYNC_ERR_FILE"/>-->
+    </root>
+</configuration>
+
